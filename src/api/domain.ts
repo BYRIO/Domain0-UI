@@ -4,6 +4,11 @@ import request from '@/utils/request';
 const enum Api {
   DOMAIN = '/v1/domain',
   DOMAIN_Item = '/v1/domain/:id',
+  DOMAIN_DNS = '/v1/domain/:id/dns',
+  DOMAIN_DNS_Item = '/v1/domain/:id/dns/:dns_id',
+
+  DOMAIN_User = '/v1/domain/:id/user',
+  DOMAIN_User_Item = '/v1/domain/:id/user/:user_id',
 }
 
 export const DomainVendorMap = {
@@ -54,6 +59,12 @@ export type DomainListResponse = {
   error?: string;
 };
 
+export type DomainDetailResponse = {
+  status: 200 | number;
+  data: DomainItem;
+  error?: string;
+};
+
 export function list(token = getToken()) {
   return request<DomainListResponse>({
     url: Api.DOMAIN,
@@ -91,6 +102,166 @@ export function update(id: number, data: DomainUpdateRequest, token = getToken()
 export function remove(id: number, token = getToken()) {
   return request({
     url: Api.DOMAIN_Item.replace(':id', id.toString()),
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export function detail(id: number, token = getToken()) {
+  return request<DomainDetailResponse>({
+    url: Api.DOMAIN_Item.replace(':id', id.toString()),
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export interface DomainDNSItem {
+  comment?: string;
+  content: string;
+  id: number | string;
+  name: string;
+  priority: number;
+  ttl: number;
+  type: string;
+
+  custom?: Record<string, unknown>;
+}
+
+export interface DomainDNSListServerSideResponse {
+  success: boolean;
+  result?: DomainDNSItem[];
+  errors?: string[];
+  messages?: string[];
+}
+
+export interface DomainDNSListResponse {
+  status: 200 | number;
+  data: DomainDNSListServerSideResponse;
+  errors?: string;
+}
+
+export interface DomainDNSCraeteOrUpdateRequest {
+  status: 200 | 201 | number;
+  data: DomainDNSItem;
+  errors?: string;
+}
+
+export function dnsList(id: number, token = getToken()) {
+  return request<DomainDNSListResponse>({
+    url: Api.DOMAIN_DNS.replace(':id', id.toString()),
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export function dnsCreate(
+  id: number,
+  _data: Omit<DomainDNSItem, 'id'>,
+  token = getToken(),
+) {
+  const data: Partial<DomainDNSItem> = Object.assign({}, _data);
+  delete data.id;
+  return request<DomainDNSCraeteOrUpdateRequest>({
+    url: Api.DOMAIN_DNS.replace(':id', id.toString()),
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    data,
+  });
+}
+
+export function dnsUpdate(
+  id: number,
+  dnsId: string | number,
+  data: DomainDNSItem,
+  token = getToken(),
+) {
+  return request<DomainDNSCraeteOrUpdateRequest>({
+    url: Api.DOMAIN_DNS_Item.replace(':id', id.toString()).replace(
+      ':dns_id',
+      dnsId.toString(),
+    ),
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    data,
+  });
+}
+
+export function dnsRemove(id: number, dnsId: string | number, token = getToken()) {
+  return request({
+    url: Api.DOMAIN_DNS_Item.replace(':id', id.toString()).replace(
+      ':dns_id',
+      dnsId.toString(),
+    ),
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export enum DomainAcccessRole {
+  ReadOnly = 0,
+  ReadWrite = 1,
+  Manager = 2,
+  Owner = 3,
+}
+
+export interface DomainUserAccessItem {
+  domain_id: number;
+  domain_name: string;
+  email: string;
+  role: DomainAcccessRole;
+  user_id: number;
+  username: string;
+}
+
+export interface DomainUserAccessListResponse {
+  status: 200 | number;
+  data: DomainUserAccessItem[];
+  errors?: string;
+}
+
+export function userList(id: number, token = getToken()) {
+  return request<DomainUserAccessListResponse>({
+    url: Api.DOMAIN_User.replace(':id', id.toString()),
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export function userCreate(
+  id: number,
+  data: { user_id: number; role: DomainAcccessRole },
+  token = getToken(),
+) {
+  return request({
+    url: Api.DOMAIN_User.replace(':id', id.toString()),
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    data,
+  });
+}
+
+export function userRemove(id: number, userId: number, token = getToken()) {
+  return request({
+    url: Api.DOMAIN_User_Item.replace(':id', id.toString()).replace(
+      ':user_id',
+      userId.toString(),
+    ),
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${token}`,

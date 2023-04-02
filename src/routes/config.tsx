@@ -1,10 +1,72 @@
+import { GlobalOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons';
 import React from 'react';
-import { RouteObject } from 'react-router-dom';
+import { matchRoutes, RouteObject, useLocation } from 'react-router-dom';
 
 import Authority from '@/layouts/Authority';
 import BasicLayout from '@/layouts/BasicLayout';
 import UserLayout from '@/layouts/UserLayout';
 import Redirect from '@/pages/Redirect';
+import { UserRole } from '@/store/token';
+
+export const sysRoutes = [
+  {
+    path: '/sys/domain',
+    title: '域名管理',
+    icon: <GlobalOutlined />,
+    hideInMenu: false,
+    menuActivePath: '/sys/domain',
+  },
+  {
+    path: '/sys/domain/:id',
+    title: '域名详情(id: :id)',
+    icon: <GlobalOutlined />,
+    hideInMenu: true,
+    menuActivePath: '/sys/domain',
+    parentPath: '/sys/domain',
+  },
+  {
+    path: '/sys/user-self',
+    title: '个人信息',
+    icon: <UserOutlined />,
+    hideInMenu: false,
+    menuActivePath: '/sys/user-self',
+  },
+  {
+    path: '/sys/user',
+    title: '用户管理',
+    icon: <TeamOutlined />,
+    menuActivePath: '/sys/user',
+    role: [UserRole.Admin, UserRole.SysAdmin],
+  },
+];
+
+export function useMatchedSysRoutes() {
+  const location = useLocation();
+  const matchedRoutes = matchRoutes(sysRoutes, location.pathname);
+  const formatTitle = (title: string, params: Record<string, string | undefined>) => {
+    return Object.keys(params).reduce((pre, key) => {
+      return pre.replace(`:${key}`, params[key] || '');
+    }, title);
+  };
+  const res = matchedRoutes
+    ? [
+        {
+          ...matchedRoutes[0].route,
+          path: matchedRoutes[0].pathname,
+          title: formatTitle(matchedRoutes[0].route.title, matchedRoutes[0].params),
+        },
+      ]
+    : [];
+
+  while (res[res.length - 1]?.parentPath) {
+    const parent = sysRoutes.find((r) => r.path === res[0].parentPath);
+    if (parent) {
+      res.push(parent);
+    }
+  }
+
+  return res;
+}
 
 const layouts: RouteObject[] = [
   {
@@ -35,6 +97,27 @@ const layouts: RouteObject[] = [
         async lazy() {
           const { default: Home } = await import('@/pages/Domain');
           return { Component: Home };
+        },
+      },
+      {
+        path: '/sys/domain/:id',
+        async lazy() {
+          const { default: DomainDetail } = await import('@/pages/DomainDetail');
+          return { Component: DomainDetail };
+        },
+      },
+      {
+        path: '/sys/user-self',
+        async lazy() {
+          const { default: UserSelf } = await import('@/pages/UserSelf');
+          return { Component: UserSelf };
+        },
+      },
+      {
+        path: '/sys/user',
+        async lazy() {
+          const { default: User } = await import('@/pages/UserManager');
+          return { Component: User };
         },
       },
       {

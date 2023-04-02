@@ -3,34 +3,20 @@ import { Layout, Menu, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { Link, matchRoutes, useLocation } from 'react-router-dom';
 
+import { sysRoutes, useMatchedSysRoutes } from '@/routes/config';
+import { useUserInfo } from '@/store/token';
+
 import cls from './index.module.less';
 const { Sider } = Layout;
 
 const MyMenu: React.FC = () => {
-  const [openKeys, setOpenKeys] = useState<string[]>([]);
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
-  const sysRoutes = [
-    {
-      path: '/sys/domain',
-      title: '域名管理',
-      icon: <GlobalOutlined />,
-    },
-  ];
-  const location = useLocation();
-
-  // 路由监听
-  useEffect(() => {
-    const pathname = location.pathname;
-    const match = matchRoutes(sysRoutes, pathname);
-
-    if (match?.length) {
-      setOpenKeys(match.map((n) => n.route.path));
-      setSelectedKeys([match[0].route.path]);
-    }
-  }, [location.pathname]);
+  const matchedRoutes = useMatchedSysRoutes();
+  const userInfo = useUserInfo();
 
   return (
-    <Sider>
+    <Sider
+      className="h-screen overflow-auto inset-y-0 left-0"
+      style={{ position: 'fixed' }}>
       <div className={cls.menu_logo}>
         <Typography.Title className={cls.logo_title} level={5}>
           Domain0-UI
@@ -39,14 +25,19 @@ const MyMenu: React.FC = () => {
       <Menu
         theme="dark"
         mode="inline"
-        openKeys={openKeys}
-        selectedKeys={selectedKeys}
-        items={sysRoutes.map((route) => ({
-          key: route.path,
-          title: route.title,
-          icon: route.icon,
-          label: <Link to={route.path}>{route.title}</Link>,
-        }))}></Menu>
+        openKeys={matchedRoutes.map((r) => r.menuActivePath)}
+        selectedKeys={[matchedRoutes[0].menuActivePath]}
+        items={sysRoutes
+          .filter((route) => !route.hideInMenu)
+          .filter((router) =>
+            router.role && userInfo?.role ? router.role.includes(userInfo.role) : true,
+          )
+          .map((route) => ({
+            key: route.path,
+            title: route.title,
+            icon: route.icon,
+            label: <Link to={route.path}>{route.title}</Link>,
+          }))}></Menu>
     </Sider>
   );
 };

@@ -1,4 +1,4 @@
-import { RedoOutlined } from '@ant-design/icons';
+import { DeleteFilled, EditOutlined, EyeOutlined, RedoOutlined } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
 import {
   Button,
@@ -16,28 +16,21 @@ import {
   Tag,
 } from 'antd';
 import React, { useEffect, useState } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 import * as Api from '@/api';
 import { DomainUpdateRequest } from '@/api/domain';
 import DoubleClickButton from '@/components/DoubleClickButton';
+import { VendorNameMap } from '@/constants/domainVendor';
 import { catchCommonResponseError, useError } from '@/error';
-
-const { Option } = Select;
-type AnyFn = (...args: unknown[]) => unknown;
 
 type DomainNormalType = Api.Domain.DomainCreateRequest;
 type DomainType = Api.Domain.DomainItem;
 type DomainFormType = DomainNormalType & { ICP_reg_boolean: boolean };
 
-const VendorNameMap: Record<Api.Domain.DomainVendor, string> = {
-  [Api.Domain.DomainVendorMap.aliyun]: '阿里云',
-  [Api.Domain.DomainVendorMap.dnspod]: '腾讯云(DNSpod)',
-  [Api.Domain.DomainVendorMap.cloudflare]: 'Cloudflare',
-};
-
 const BaseColumns = [
   { title: 'ID', dataIndex: 'ID', key: 'ID' },
-  { title: '名称', dataIndex: 'Name', key: 'Name' },
+  { title: '域名', dataIndex: 'Name', key: 'Name' },
   {
     title: 'ICP',
     key: 'ICP_reg',
@@ -48,7 +41,7 @@ const BaseColumns = [
     title: 'DNS 供应商',
     dataIndex: 'vendor',
     key: 'vendor',
-    render: (vendor: Api.Domain.DomainVendor) => VendorNameMap[vendor],
+    render: (vendor: Api.Domain.DomainVendor) => VendorNameMap[vendor] || vendor,
   },
 ];
 
@@ -77,9 +70,9 @@ const DeleteButton: React.FC<{
     <DoubleClickButton
       danger
       loading={loadingDelete}
+      icon={<DeleteFilled />}
       endBtnProps={{ type: 'primary' }}
       onFinalClick={doDelete}>
-      <DoubleClickButton.Start>删除</DoubleClickButton.Start>
       <DoubleClickButton.End>确定删除?</DoubleClickButton.End>
     </DoubleClickButton>
   );
@@ -182,6 +175,9 @@ const Home: React.FC = () => {
         console.log(res);
       });
   };
+
+  const navigate = useNavigate();
+
   return (
     <div className="p-4 min-h-full space-y-4">
       <Space className="w-full flex justify-end">
@@ -194,6 +190,7 @@ const Home: React.FC = () => {
         <Table
           dataSource={dataSource}
           rowKey="ID"
+          pagination={false}
           columns={[
             ...BaseColumns,
             {
@@ -202,9 +199,14 @@ const Home: React.FC = () => {
               // eslint-disable-next-line react/display-name
               render: (_: any, record: DomainType) => (
                 <Space size="middle">
-                  <Button type="primary" onClick={getHandleEdit(record)}>
-                    修改
-                  </Button>
+                  <Button
+                    type="text"
+                    onClick={() => navigate(`/sys/domain/${record.ID}`)}
+                    icon={<EyeOutlined />}></Button>
+                  <Button
+                    type="text"
+                    onClick={getHandleEdit(record)}
+                    icon={<EditOutlined />}></Button>
                   <DeleteButton item={record} onDelete={removeList} />
                 </Space>
               ),
@@ -229,9 +231,15 @@ const Home: React.FC = () => {
           labelCol={{ span: 4 }}
           wrapperCol={{ span: 14 }}>
           <Form.Item
-            label="名称"
+            label="域名"
             name="name"
-            rules={[{ required: true, message: '请输入名称' }]}>
+            rules={[
+              { required: true, message: '请输入域名' },
+              {
+                pattern: /^([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*\.)+[a-zA-Z]{2,}$/,
+                message: '请输入正确的域名',
+              },
+            ]}>
             <Input />
           </Form.Item>
           <Form.Item label="是否ICP备案" name="ICP_reg_boolean">

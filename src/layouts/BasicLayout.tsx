@@ -11,7 +11,7 @@ const BasicLayout: React.FC = () => {
   return (
     <Layout>
       <MyMenu />
-      <Layout>
+      <Layout style={{ marginLeft: 200 }}>
         <MyHeader />
         <Content style={{ height: 'calc(100vh - 60px)' }}>
           <Outlet />

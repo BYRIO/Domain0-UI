@@ -57,7 +57,7 @@ const DomainDetail: React.FC = () => {
         </Card>
         <Tabs
           className="w-full mt-4"
-          defaultActiveKey="access"
+          defaultActiveKey="dns"
           items={[
             {
               label: 'DNS',

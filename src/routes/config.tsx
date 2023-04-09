@@ -1,4 +1,9 @@
-import { GlobalOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  EditOutlined,
+  GlobalOutlined,
+  TeamOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import React from 'react';
 import { matchRoutes, RouteObject, useLocation } from 'react-router-dom';
 
@@ -23,6 +28,13 @@ export const sysRoutes = [
     hideInMenu: true,
     menuActivePath: '/sys/domain',
     parentPath: '/sys/domain',
+  },
+  {
+    path: '/sys/domain-change',
+    title: '域名变更',
+    icon: <EditOutlined />,
+    hideInMenu: false,
+    menuActivePath: '/sys/domain-change',
   },
   {
     path: '/sys/user-self',
@@ -104,6 +116,13 @@ const layouts: RouteObject[] = [
         async lazy() {
           const { default: DomainDetail } = await import('@/pages/DomainDetail');
           return { Component: DomainDetail };
+        },
+      },
+      {
+        path: '/sys/domain-change',
+        async lazy() {
+          const { default: DomainChange } = await import('@/pages/DomainChange');
+          return { Component: DomainChange };
         },
       },
       {

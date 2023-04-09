@@ -23,6 +23,7 @@ import {
 import { FormContext } from 'antd/es/form/context';
 import TextArea from 'antd/es/input/TextArea';
 import { ColumnType } from 'antd/es/table';
+import { TextProps } from 'antd/es/typography/Text';
 import React, { useEffect } from 'react';
 
 import * as Api from '@/api';
@@ -36,11 +37,11 @@ import { DnsItem } from './type';
 
 const DnsTypeList = ['A', 'CNAME', 'MX', 'TXT', 'NS', 'AAAA', 'SRV', 'CAA', 'SPF'];
 
-const TableNormalTextItem: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
-  children,
-  className,
-  ...props
-}) => {
+const TableNormalTextItem: React.FC<
+  React.HTMLAttributes<HTMLDivElement> & {
+    textProps?: TextProps & React.RefAttributes<HTMLSpanElement>;
+  }
+> = ({ children, className, textProps, ...props }) => {
   return (
     <div
       {...props}
@@ -49,6 +50,7 @@ const TableNormalTextItem: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
         ' flex items-center border rounded border-solid border-transparent transition hover:border-blue-500'
       }>
       <Typography.Text
+        {...textProps}
         ellipsis={{
           tooltip: (
             <Typography.Text copyable className="text-white">
@@ -65,7 +67,7 @@ const TableNormalTextItem: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
 const TableRowWithFormProvider: React.FC<{
   record: DnsItem;
 }> = ({ record, ...props }) => {
-  const [form] = Form.useForm<DnsItem>();
+  const [form] = Form.useForm<Api.Domain.DomainDNSItem>();
   useEffect(() => {
     form.setFieldsValue(record);
   }, [record?.editing]);
@@ -97,14 +99,17 @@ const columns: ColumnType<DnsItem>[] = [
     dataIndex: 'id',
     key: 'id',
     render: (id: number | string) => {
-      return <>{typeof id === 'string' && id.startsWith('tmp-') ? '新建' : id}</>;
+      return (
+        <TableNormalTextItem className="w-8">
+          {typeof id === 'string' && id.startsWith('tmp-') ? '新建' : id}
+        </TableNormalTextItem>
+      );
     },
   },
   {
     title: '主机记录',
-    dataIndex: 'name',
     key: 'name',
-    render: (name: string, record: DnsItem) => {
+    render: (_: unknown, record: DnsItem) => {
       if (record.editing) {
         return (
           <Form.Item
@@ -117,20 +122,19 @@ const columns: ColumnType<DnsItem>[] = [
       }
       return (
         <TableNormalTextItem onClick={() => record.setEditing(true)} className="w-24 h-8">
-          {name}
+          {record.origin?.name}
         </TableNormalTextItem>
       );
     },
   },
   {
     title: '记录类型',
-    dataIndex: 'type',
     key: 'type',
-    render: (type: string, record: DnsItem) => {
+    render: (_: unknown, record: DnsItem) => {
       if (record.editing) {
         return (
           <Form.Item name="type" noStyle>
-            <Select value={type} className="w-16 h-8">
+            <Select className="w-16 h-8">
               {DnsTypeList.map((item) => (
                 <Select.Option value={item} key={item}>
                   {item}
@@ -142,16 +146,15 @@ const columns: ColumnType<DnsItem>[] = [
       }
       return (
         <TableNormalTextItem onClick={() => record.setEditing(true)} className="w-16 h-8">
-          {type}
+          {record.origin?.type}
         </TableNormalTextItem>
       );
     },
   },
   {
     title: '记录值',
-    dataIndex: 'content',
     key: 'content',
-    render: (content: string, record: DnsItem) => {
+    render: (_: unknown, record: DnsItem) => {
       if (record.editing) {
         return (
           <Form.Item
@@ -169,16 +172,15 @@ const columns: ColumnType<DnsItem>[] = [
       }
       return (
         <TableNormalTextItem onClick={() => record.setEditing(true)} className="w-48 h-8">
-          {content}
+          {record.origin?.content}
         </TableNormalTextItem>
       );
     },
   },
   {
     title: '优先级',
-    dataIndex: 'priority',
     key: 'priority',
-    render: (priority: number, record: DnsItem) => {
+    render: (_: unknown, record: DnsItem) => {
       if (record.editing) {
         return (
           <Form.Item name="priority" className="w-16 h-8 m-0">
@@ -188,16 +190,15 @@ const columns: ColumnType<DnsItem>[] = [
       }
       return (
         <TableNormalTextItem onClick={() => record.setEditing(true)} className="w-16 h-8">
-          {priority}
+          {record.origin?.priority || '-'}
         </TableNormalTextItem>
       );
     },
   },
   {
     title: 'TTL',
-    dataIndex: 'ttl',
     key: 'ttl',
-    render: (ttl: number, record: DnsItem) => {
+    render: (_: unknown, record: DnsItem) => {
       if (record.editing) {
         return (
           <Form.Item name="ttl" className="w-20 h-8 m-0">
@@ -205,9 +206,13 @@ const columns: ColumnType<DnsItem>[] = [
           </Form.Item>
         );
       }
+      const isAuto = record.origin?.ttl === 1;
       return (
-        <TableNormalTextItem onClick={() => record.setEditing(true)} className="w-20 h-8">
-          {ttl}
+        <TableNormalTextItem
+          onClick={() => record.setEditing(true)}
+          className="w-20 h-8"
+          textProps={{ type: isAuto ? 'secondary' : undefined }}>
+          {isAuto ? 'auto' : record.origin?.ttl}
         </TableNormalTextItem>
       );
     },
@@ -229,10 +234,12 @@ const columns: ColumnType<DnsItem>[] = [
             </Form.Item>
           ) : (
             <>
-              <Popover content={record.comment || '点击添加备注'}>
+              <Popover content={record.origin?.comment || '点击添加备注'}>
                 <Button
                   type="text"
-                  icon={record.comment ? <FileTextFilled /> : <FileTextOutlined />}
+                  icon={
+                    record.origin?.comment ? <FileTextFilled /> : <FileTextOutlined />
+                  }
                   onClick={record.doEditComment.bind(record)}
                 />
               </Popover>
@@ -262,20 +269,20 @@ const DnsTable: React.FC<{
   const [newDnsItems, setNewDnsItems] = React.useState<DnsItem[]>([]);
   const [updateDnsItems, setUpdateDnsItems] = React.useState<DnsItem[]>([]);
 
-  const onDnsItemCreated: DnsItem['onCreate'] = (item, newData) => {
+  const onDnsItemCreated: DnsItem['onCreate'] = (oldItem, newData) => {
     setNewDnsItems((prev) =>
-      prev
-        .slice()
-        .map((item) => (item.id === newData.id ? getNormalDnsProps(newData) : item)),
+      newData
+        ? prev
+            .slice()
+            .map((item) => (item.id === oldItem.id ? getNormalDnsProps(newData) : item))
+        : prev.filter((item) => item.id !== oldItem.id),
     );
   };
-  const onDnsItemUpdated: DnsItem['onUpdate'] = (item, newData) => {
+  const onDnsItemUpdated: DnsItem['onUpdate'] = (oldItem, newData) => {
     setUpdateDnsItems((prev) =>
-      prev
-        .filter((item) => item.id !== newData.id)
-        .concat(getNormalDnsProps(newData, false)),
+      prev.filter((item) => item.id !== newData.id).concat(getNormalDnsProps(newData)),
     );
-    setEditingIds((prev) => prev.filter((id) => id !== newData.id));
+    setEditingIds((prev) => prev.filter((id) => id !== oldItem.id));
   };
 
   const onDnsItemDeleted: DnsItem['onDelete'] = (item) => {
@@ -311,9 +318,10 @@ const DnsTable: React.FC<{
   } = useRequest(
     async () => {
       const comment = form.getFieldValue('comment');
-      if (!editingDnsItem) throw new MessageError('error', '未选中DNS项(#RF23)');
+      if (!editingDnsItem || !editingDnsItem.origin)
+        throw new MessageError('error', '未选中DNS项(#RF23)');
       const fullData = {
-        ...editingDnsItem,
+        ...editingDnsItem.origin,
         comment: comment || undefined,
       } satisfies Api.Domain.DomainDNSItem;
       const res = await catchCommonResponseError(
@@ -331,16 +339,14 @@ const DnsTable: React.FC<{
   );
   useError(errorOnDnsCommentUpdate);
 
-  const getNormalDnsProps = (
-    item: Api.Domain.DomainDNSItem,
-    editing = editingIds.includes(item.id),
-    deleted = removeIds.includes(item.id),
-  ): DnsItem => ({
+  const getNormalDnsProps = (item: Api.Domain.DomainDNSItem): DnsItem => ({
     ...item,
+    id: item.id,
+    origin: item,
     new: false,
     domainId: id,
-    editing,
-    deleted,
+    editing: false,
+    deleted: false,
     setEditing: (editing: boolean) => {
       if (editing) {
         setEditingIds([...editingIds, item.id]);
@@ -361,6 +367,7 @@ const DnsTable: React.FC<{
   const newDnsItem = () => {
     setNewDnsItems((prev) => {
       const tmpId = `tmp-${prev.length}-${Date.now()}`;
+      setEditingIds((prev) => [...prev, tmpId]);
       return [
         {
           id: tmpId,
@@ -372,7 +379,7 @@ const DnsTable: React.FC<{
           priority: 0,
           ttl: 600,
           comment: '',
-          editing: true,
+          editing: false,
           deleted: false,
           setEditing: (editing: boolean) => {
             if (!editing) {
@@ -396,6 +403,12 @@ const DnsTable: React.FC<{
     .map((item) => {
       const updateItem = updateDnsItems.find((updateItem) => updateItem.id === item.id);
       return updateItem || item;
+    })
+    .map((item) => {
+      item.deleted = removeIds.includes(item.id);
+      item.editing = editingIds.includes(item.id);
+
+      return item;
     })
     .filter((item) => !item.deleted);
 

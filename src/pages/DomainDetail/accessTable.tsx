@@ -67,6 +67,7 @@ const RemoveUserButton: React.FC<{
 };
 const AccessTable: React.FC<{ id: number }> = ({ id }) => {
   const userInfo = useUserInfo();
+  const [removeUserIds, setRemoveUserIds] = React.useState<number[]>([]);
   const {
     run: doLoadList,
     loading: loadingList,
@@ -78,12 +79,12 @@ const AccessTable: React.FC<{ id: number }> = ({ id }) => {
     if (res.data.status !== 200) {
       throw new MessageError('warning', res.data.errors || '未知错误(#91)');
     }
+    setRemoveUserIds([]);
     return res.data.data;
   });
   useError(errorOnList);
 
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
-  const [removeUserIds, setRemoveUserIds] = React.useState<number[]>([]);
   const onRemoveUser = (item: UserAccessItem) => {
     setRemoveUserIds((ids) => ids.concat(item.user_id));
   };
@@ -117,7 +118,8 @@ const AccessTable: React.FC<{ id: number }> = ({ id }) => {
       if (res.data.status !== 200) {
         throw new MessageError('warning', res.data.errors || '未知错误(#92)');
       }
-      return res.data.data;
+      setIsEditModalOpen(false);
+      doLoadList();
     },
     {
       manual: true,
@@ -192,14 +194,14 @@ const AccessTable: React.FC<{ id: number }> = ({ id }) => {
               <Select.Option
                 value={Api.Domain.DomainAcccessRole.Manager}
                 disabled={
-                  selfAccessRole && selfAccessRole >= Api.Domain.DomainAcccessRole.Manager
+                  selfAccessRole && selfAccessRole <= Api.Domain.DomainAcccessRole.Manager
                 }>
                 {Api.Domain.DomainAcccessRole[Api.Domain.DomainAcccessRole.Manager]}
               </Select.Option>
               <Select.Option
                 value={Api.Domain.DomainAcccessRole.Owner}
                 disabled={
-                  selfAccessRole && selfAccessRole >= Api.Domain.DomainAcccessRole.Owner
+                  selfAccessRole && selfAccessRole <= Api.Domain.DomainAcccessRole.Owner
                 }>
                 {Api.Domain.DomainAcccessRole[Api.Domain.DomainAcccessRole.Owner]}
               </Select.Option>

@@ -44,7 +44,17 @@ export function catchCommonResponseError<T extends AxiosResponse>(
         }
       }
       if (err.response?.status && err.response.status >= 500) {
-        throw new MessageError('error', err.response.statusText);
+        const body = err.response.data;
+        if (typeof body === 'string') {
+          throw new MessageError('error', body);
+        } else if (typeof body === 'object') {
+          throw new MessageError(
+            'error',
+            body.errors || body.message || `服务器出错了(${err.response.status}-#9568)`,
+          );
+        } else {
+          throw new MessageError('error', err.response.statusText);
+        }
       }
     }
     throw err;

@@ -127,8 +127,6 @@ export interface DomainDNSItem {
   priority: number;
   ttl: number;
   type: string;
-
-  custom?: Record<string, unknown>;
 }
 
 export interface DomainDNSListServerSideResponse {
@@ -144,11 +142,28 @@ export interface DomainDNSListResponse {
   errors?: string;
 }
 
-export interface DomainDNSCraeteOrUpdateRequest {
-  status: 200 | 201 | number;
+export interface DomainDNSCreateOrUpdateNeedApproveResponse {
+  status: 208;
+  data: string;
+  errors: never;
+}
+
+export interface DomainDNSCraeteOrUpdateSuccessResponse {
+  status: 200 | 201;
   data: DomainDNSItem;
+  errors: never;
+}
+
+export interface DomainDNSCraeteOrUpdateCommonRequest {
+  status: 500;
+  data: unknown;
   errors?: string;
 }
+
+export type DomainDNSCraeteOrUpdateRequest =
+  | DomainDNSCreateOrUpdateNeedApproveResponse
+  | DomainDNSCraeteOrUpdateSuccessResponse
+  | DomainDNSCraeteOrUpdateCommonRequest;
 
 export function dnsList(id: number, token = getToken()) {
   return request<DomainDNSListResponse>({

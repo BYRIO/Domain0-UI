@@ -5,9 +5,9 @@ export const VITE_BASE_PATH = '/';
 // 请求接口地址
 export const VITE_PROXY_HTTP = 'http://localhost:8080';
 // 应用名称
-export const VITE_APP_TITLE = 'Vite React App';
+export const VITE_APP_TITLE = 'Domain0-UI';
 // 开启 mock
-export const VITE_APP_MOCK = true;
+export const VITE_APP_MOCK = false;
 // 开启包依赖分析 可视化
 export const VITE_APP_ANALYZE = false;
 // 开启Gzip压缩

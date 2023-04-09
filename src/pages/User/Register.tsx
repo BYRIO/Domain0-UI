@@ -45,7 +45,7 @@ const Register: React.FC = () => {
                 message: '请输入正确的邮箱',
               },
             ]}>
-            <Input prefix={<UserOutlined />} placeholder="请输入邮箱：admin" />
+            <Input prefix={<UserOutlined />} placeholder="请输入邮箱" />
           </Form.Item>
           <Form.Item
             name="password"
@@ -56,11 +56,7 @@ const Register: React.FC = () => {
                 message: '密码长度不能小于6位',
               },
             ]}>
-            <Input
-              prefix={<LockOutlined />}
-              placeholder="请输入密码：123456"
-              type="password"
-            />
+            <Input prefix={<LockOutlined />} placeholder="请输入密码" type="password" />
           </Form.Item>
           <Form.Item>
             <Button loading={loading} type="primary" htmlType="submit" className="w-full">

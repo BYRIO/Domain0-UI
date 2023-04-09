@@ -2,12 +2,12 @@ import './global.less';
 
 import { Spin } from 'antd';
 import React, { Suspense } from 'react';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createHashRouter, RouterProvider } from 'react-router-dom';
 
 // import Authority from '@/layouts/Authority';
 import routes from '@/routes/config';
 
-const renderRoutes = createBrowserRouter(routes);
+const renderRoutes = createHashRouter(routes);
 
 const App = () => {
   return (

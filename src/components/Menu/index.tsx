@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, matchRoutes, useLocation } from 'react-router-dom';
 
 import { sysRoutes, useMatchedSysRoutes } from '@/routes/config';
-import { useUserInfo } from '@/store/token';
+import { UserRole, useUserInfo } from '@/store/token';
 
 import cls from './index.module.less';
 const { Sider } = Layout;
@@ -29,8 +29,10 @@ const MyMenu: React.FC = () => {
         selectedKeys={[matchedRoutes[0].menuActivePath]}
         items={sysRoutes
           .filter((route) => !route.hideInMenu)
-          .filter((router) =>
-            router.role && userInfo?.role ? router.role.includes(userInfo.role) : true,
+          .filter(
+            (router) =>
+              router.role === undefined ||
+              router.role.includes(userInfo?.role as UserRole),
           )
           .map((route) => ({
             key: route.path,

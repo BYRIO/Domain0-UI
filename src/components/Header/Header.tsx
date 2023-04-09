@@ -18,7 +18,8 @@ const MyHeader: React.FC = () => {
   const handleChange = (e: { key: string }) => {
     if (e.key === '0') {
       setToken('');
-      window.location.href = '/user/login';
+      // reload page
+      window.location.reload();
     }
   };
 

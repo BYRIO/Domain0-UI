@@ -5,6 +5,7 @@ import * as Api from '@/api';
 export type DnsItem = {
   new: boolean;
   id: Api.Domain.DomainDNSItem['id'];
+  vendor: Api.Domain.DomainVendor;
   origin?: Api.Domain.DomainDNSItem;
   domainId: number;
   editing: boolean;

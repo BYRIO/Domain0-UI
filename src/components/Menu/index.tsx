@@ -1,11 +1,12 @@
 import { GlobalOutlined } from '@ant-design/icons';
-import { Layout, Menu, Typography } from 'antd';
+import { Avatar, Layout, Menu, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { Link, matchRoutes, useLocation } from 'react-router-dom';
 
 import { sysRoutes, useMatchedSysRoutes } from '@/routes/config';
 import { UserRole, useUserInfo } from '@/store/token';
 
+import { Logo } from '../Header';
 import cls from './index.module.less';
 const { Sider } = Layout;
 
@@ -19,7 +20,7 @@ const MyMenu: React.FC = () => {
       style={{ position: 'fixed' }}>
       <div className={cls.menu_logo}>
         <Typography.Title className={cls.logo_title} level={5}>
-          Domain0-UI
+          <Logo size={35} /> Domain0-UI
         </Typography.Title>
       </div>
       <Menu

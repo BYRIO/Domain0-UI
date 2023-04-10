@@ -127,6 +127,9 @@ export interface DomainDNSItem {
   priority: number;
   ttl: number;
   type: string;
+
+  // 以下字段在部分情况下返回
+  proxied?: boolean;
 }
 
 export interface DomainDNSListServerSideResponse {

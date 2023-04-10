@@ -16,6 +16,7 @@ import {
   Popover,
   Select,
   Space,
+  Switch,
   Table,
   theme,
   Typography,
@@ -27,7 +28,6 @@ import { TextProps } from 'antd/es/typography/Text';
 import React, { useEffect } from 'react';
 
 import * as Api from '@/api';
-import DoubleClickButton from '@/components/DoubleClickButton';
 import { catchCommonResponseError, MessageError, useError } from '@/error';
 
 import { RowFormContext } from './context';
@@ -69,7 +69,7 @@ const TableRowWithFormProvider: React.FC<{
 }> = ({ record, ...props }) => {
   const [form] = Form.useForm<Api.Domain.DomainDNSItem>();
   useEffect(() => {
-    form.setFieldsValue(record);
+    form.setFieldsValue(record?.origin || {});
   }, [record?.editing]);
   return (
     <RowFormContext.Provider value={form}>
@@ -93,7 +93,7 @@ const TableCellWithFormItem: React.FC<{
   );
 };
 
-const columns: ColumnType<DnsItem>[] = [
+const baseColumns: ColumnType<DnsItem>[] = [
   {
     title: 'ID',
     dataIndex: 'id',
@@ -206,7 +206,9 @@ const columns: ColumnType<DnsItem>[] = [
           </Form.Item>
         );
       }
-      const isAuto = record.origin?.ttl === 1;
+      const isAuto =
+        record.origin?.ttl === 1 &&
+        record.vendor === Api.Domain.DomainVendorMap.cloudflare;
       return (
         <TableNormalTextItem
           onClick={() => record.setEditing(true)}
@@ -217,52 +219,73 @@ const columns: ColumnType<DnsItem>[] = [
       );
     },
   },
-  {
-    title: '操作',
-    key: 'action',
-    render: (_: unknown, record: DnsItem) => {
-      return (
-        <Space size="middle" className="w-48">
-          {record.editing ? (
-            <Form.Item noStyle>
-              <CreateOrUpdateDnsButton
-                item={record}
-                onUpdated={record.onUpdate}
-                onCreated={record.onCreate}
-              />
-              <Button onClick={() => record.setEditing(false)}>取消</Button>
-            </Form.Item>
-          ) : (
-            <>
-              <Popover content={record.origin?.comment || '点击添加备注'}>
-                <Button
-                  type="text"
-                  icon={
-                    record.origin?.comment ? <FileTextFilled /> : <FileTextOutlined />
-                  }
-                  onClick={record.doEditComment.bind(record)}
-                />
-              </Popover>
-              <RemoveDnsButton item={record} onDelete={record.onDelete} />
-            </>
-          )}
-        </Space>
-      );
-    },
-  },
 ];
 
-columns.forEach((item) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  item.onCell = (record): any => ({
-    record,
-  });
-});
+const vendorCustomizeColums: Record<Api.Domain.DomainVendor, ColumnType<DnsItem>[]> = {
+  [Api.Domain.DomainVendorMap.dnspod]: [],
+  [Api.Domain.DomainVendorMap.aliyun]: [],
+  [Api.Domain.DomainVendorMap.cloudflare]: [
+    {
+      title: '代理状态',
+      key: 'proxied',
+      render: (_: unknown, record: DnsItem) => {
+        if (record.editing) {
+          return (
+            <Form.Item name="proxied" valuePropName="checked" noStyle>
+              <Switch />
+            </Form.Item>
+          );
+        }
+        return (
+          <TableNormalTextItem
+            onClick={() => record.setEditing(true)}
+            className="w-16 h-8"
+            textProps={{ type: record.origin?.proxied ? 'success' : 'danger' }}>
+            {record.origin?.proxied ? '开启' : '关闭'}
+          </TableNormalTextItem>
+        );
+      },
+    },
+  ],
+};
+
+const actionColums: ColumnType<DnsItem> = {
+  title: '操作',
+  key: 'action',
+  render: (_: unknown, record: DnsItem) => {
+    return (
+      <Space size="middle" className="w-48">
+        {record.editing ? (
+          <Form.Item noStyle>
+            <CreateOrUpdateDnsButton
+              item={record}
+              onUpdated={record.onUpdate}
+              onCreated={record.onCreate}
+            />
+            <Button onClick={() => record.setEditing(false)}>取消</Button>
+          </Form.Item>
+        ) : (
+          <>
+            <Popover content={record.origin?.comment || '点击添加备注'}>
+              <Button
+                type="text"
+                icon={record.origin?.comment ? <FileTextFilled /> : <FileTextOutlined />}
+                onClick={record.doEditComment.bind(record)}
+              />
+            </Popover>
+            <RemoveDnsButton item={record} onDelete={record.onDelete} />
+          </>
+        )}
+      </Space>
+    );
+  },
+};
 
 const DnsTable: React.FC<{
   id: number;
+  vendor: Api.Domain.DomainVendor;
 }> = (props) => {
-  const { id } = props;
+  const { id, vendor } = props;
 
   const [removeIds, setRemoveIds] = React.useState<(number | string)[]>([]);
   const [editingIds, setEditingIds] = React.useState<(number | string)[]>([]);
@@ -342,6 +365,7 @@ const DnsTable: React.FC<{
   const getNormalDnsProps = (item: Api.Domain.DomainDNSItem): DnsItem => ({
     ...item,
     id: item.id,
+    vendor,
     origin: item,
     new: false,
     domainId: id,
@@ -371,6 +395,7 @@ const DnsTable: React.FC<{
       return [
         {
           id: tmpId,
+          vendor,
           new: true,
           domainId: id,
           name: '',
@@ -421,6 +446,20 @@ const DnsTable: React.FC<{
     setEditingDnsItem(null);
     form.resetFields();
   };
+
+  const columns = [
+    ...baseColumns,
+    ...(vendorCustomizeColums[vendor] || []),
+    actionColums,
+  ].map((item) => {
+    return {
+      ...item,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onCell(record: DnsItem): any {
+        return { record };
+      },
+    };
+  });
 
   return (
     <>

@@ -5,6 +5,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import * as Api from '@/api';
+import { Logo } from '@/components/Header';
 import { catchCommonResponseError, MessageError, useError } from '@/error';
 import { setToken } from '@/store/token';
 
@@ -33,7 +34,10 @@ const Register: React.FC = () => {
   );
   useError(error);
   return (
-    <div className="w-full h-full flex items-center justify-center">
+    <div className="w-full h-full flex flex-col items-center justify-center">
+      <div className="mx-auto flex flex-col items-center justify-center mb-4">
+        <Logo size={120} />
+      </div>
       <Card className="mx-auto w-80" bordered={false}>
         <Form onFinish={doRegister}>
           <Form.Item

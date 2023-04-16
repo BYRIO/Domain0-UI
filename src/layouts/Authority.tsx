@@ -7,7 +7,6 @@ import { getUserInfo } from '@/store/token';
 
 const Authority: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const userinfo = getUserInfo();
-  console.log('userinfo', userinfo);
 
   if (!userinfo) {
     return <Navigate to="/user/login" />;

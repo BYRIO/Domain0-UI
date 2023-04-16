@@ -10,6 +10,7 @@ import { matchRoutes, RouteObject, useLocation } from 'react-router-dom';
 import Authority from '@/layouts/Authority';
 import BasicLayout from '@/layouts/BasicLayout';
 import UserLayout from '@/layouts/UserLayout';
+import CallbackPage from '@/pages/Callback';
 import Redirect from '@/pages/Redirect';
 import { UserRole } from '@/store/token';
 
@@ -177,6 +178,11 @@ const layouts: RouteObject[] = [
         },
       },
     ],
+  },
+  {
+    path: '/callback',
+    // title: '回调',
+    element: <CallbackPage />,
   },
   {
     path: '/noFond',

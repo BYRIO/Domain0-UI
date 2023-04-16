@@ -1,6 +1,16 @@
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
-import { Button, Card, Form, Input, message, Space, Typography } from 'antd';
+import {
+  Avatar,
+  Button,
+  Card,
+  Divider,
+  Form,
+  Input,
+  message,
+  Space,
+  Typography,
+} from 'antd';
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -8,6 +18,14 @@ import * as Api from '@/api';
 import { Logo } from '@/components/Header';
 import { catchCommonResponseError, MessageError, useError } from '@/error';
 import { setToken } from '@/store/token';
+
+const FeishuLogin: React.FC = () => {
+  return (
+    <a href="/api/v1/user/feishu">
+      <Avatar src="https://sf3-scmcdn2-cn.feishucdn.com/lark/open/doc/frontend/favicon-logo.svg" />
+    </a>
+  );
+};
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -64,6 +82,11 @@ const Login: React.FC = () => {
             </Typography.Text>
           </Space>
         </Form>
+        {/* 其他登录方式 */}
+        <Divider>其他登录方式</Divider>
+        <Space className="w-full justify-center">
+          <FeishuLogin />
+        </Space>
       </Card>
     </div>
   );

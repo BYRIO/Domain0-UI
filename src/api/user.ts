@@ -121,3 +121,14 @@ export function remove(id: number, token = getToken()) {
     },
   });
 }
+
+export function callback(code: string, state: string) {
+  return request<LoginResponse>({
+    url: '/v1/user/callback',
+    method: 'GET',
+    params: {
+      code,
+      state,
+    },
+  });
+}

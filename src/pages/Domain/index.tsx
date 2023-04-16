@@ -1,25 +1,28 @@
-import { DeleteFilled, EditOutlined, EyeOutlined, RedoOutlined } from '@ant-design/icons';
+import {
+  DeleteFilled,
+  EditOutlined,
+  RedoOutlined,
+  SettingOutlined,
+} from '@ant-design/icons';
 import { useRequest } from 'ahooks';
 import {
   Button,
   Card,
   Form,
   Input,
-  InputNumber,
   message,
   Modal,
   Radio,
-  Select,
   Space,
   Switch,
   Table,
   Tag,
 } from 'antd';
-import React, { useEffect, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { ColumnsType } from 'antd/es/table';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 import * as Api from '@/api';
-import { DomainUpdateRequest } from '@/api/domain';
 import DoubleClickButton from '@/components/DoubleClickButton';
 import { VendorNameMap } from '@/constants/domainVendor';
 import { catchCommonResponseError, useError } from '@/error';
@@ -28,9 +31,16 @@ type DomainNormalType = Api.Domain.DomainCreateRequest;
 type DomainType = Api.Domain.DomainItem;
 type DomainFormType = DomainNormalType & { ICP_reg_boolean: boolean };
 
-const BaseColumns = [
+const BaseColumns: ColumnsType<Api.Domain.DomainItem> = [
   { title: 'ID', dataIndex: 'ID', key: 'ID' },
-  { title: '域名', dataIndex: 'Name', key: 'Name' },
+  {
+    title: '域名',
+    dataIndex: 'Name',
+    key: 'Name',
+    render: (name: string, record) => {
+      return <Link to={`/sys/domain/${record.ID}`}>{name}</Link>;
+    },
+  },
   {
     title: 'ICP',
     key: 'ICP_reg',
@@ -199,14 +209,13 @@ const Home: React.FC = () => {
               // eslint-disable-next-line react/display-name
               render: (_: any, record: DomainType) => (
                 <Space size="middle">
-                  <Button
-                    type="text"
-                    onClick={() => navigate(`/sys/domain/${record.ID}`)}
-                    icon={<EyeOutlined />}></Button>
+                  <Link to={`/sys/domain/${record.ID}`}>
+                    <Button type="text" icon={<EditOutlined />}></Button>
+                  </Link>
                   <Button
                     type="text"
                     onClick={getHandleEdit(record)}
-                    icon={<EditOutlined />}></Button>
+                    icon={<SettingOutlined />}></Button>
                   <DeleteButton item={record} onDelete={removeList} />
                 </Space>
               ),

@@ -1,0 +1,53 @@
+@media screen and (max-width: 480px) {
+  .main-layout.ant-layout.ant-layout-has-sider {
+    flex-direction: column;
+    .menu-sider {
+      width: 100% !important;
+      max-width: 100% !important;
+      flex: 0 0 auto !important;
+      &.h-screen {
+        height: auto;
+      }
+      & > .ant-layout-sider-children {
+        width: 100%;
+        & > div:first-child {
+          flex-shrink: 0;
+        }
+        .ant-typography .title {
+          display: none;
+        }
+        display: flex;
+        flex-direction: row;
+        & > .ant-menu.ant-menu-root.ant-menu-inline {
+          display: flex;
+          flex-direction: row;
+          flex-grow: 1;
+          overflow-x: auto;
+          .ant-menu-item {
+            flex-shrink: 0;
+            width: max-content;
+          }
+        }
+      }
+    }
+    & > section.ant-layout {
+      width: 100%;
+      flex-grow: 1;
+      header.ant-layout-header {
+        padding-inline: 5px;
+      }
+      .ant-layout-content {
+        & > .p-4 {
+          padding-left: 0;
+          padding-right: 0;
+        }
+        .ant-card .ant-card-body {
+          padding-left: 5px;
+          padding-right: 5px;
+
+          overflow: auto;
+        }
+      }
+    }
+  }
+}

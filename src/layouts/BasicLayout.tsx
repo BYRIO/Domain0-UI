@@ -9,11 +9,11 @@ const { Content } = Layout;
 
 const BasicLayout: React.FC = () => {
   return (
-    <Layout>
+    <Layout className="main-layout">
       <MyMenu />
-      <Layout style={{ marginLeft: 200 }}>
+      <Layout className="content-layout">
         <MyHeader />
-        <Content style={{ height: 'calc(100vh - 60px)' }}>
+        <Content className="grow overflow-y-auto">
           <Outlet />
         </Content>
       </Layout>

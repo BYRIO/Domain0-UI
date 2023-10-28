@@ -1,4 +1,5 @@
 import './global.less';
+import './mobile.less';
 
 import { Spin } from 'antd';
 import React, { Suspense } from 'react';

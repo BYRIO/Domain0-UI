@@ -15,12 +15,10 @@ const MyMenu: React.FC = () => {
   const userInfo = useUserInfo();
 
   return (
-    <Sider
-      className="h-screen overflow-auto inset-y-0 left-0"
-      style={{ position: 'fixed' }}>
+    <Sider className={`h-screen overflow-auto inset-y-0 left-0 menu-sider`}>
       <div className={cls.menu_logo}>
         <Typography.Title className={cls.logo_title} level={5}>
-          <Logo size={35} /> Domain0-UI
+          <Logo size={35} /> <span className="title">Domain0-UI</span>
         </Typography.Title>
       </div>
       <Menu

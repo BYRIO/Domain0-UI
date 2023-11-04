@@ -15,6 +15,7 @@ export const DomainVendorMap = {
   cloudflare: 'cloudflare',
   dnspod: 'dnspod',
   aliyun: 'aliyun',
+  huawei: 'huawei',
 } as const;
 
 export const DomainVendorList = Object.values(DomainVendorMap);

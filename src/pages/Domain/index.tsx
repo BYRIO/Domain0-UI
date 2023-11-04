@@ -12,7 +12,7 @@ import {
   Input,
   message,
   Modal,
-  Radio,
+  Select,
   Space,
   Switch,
   Table,
@@ -263,14 +263,21 @@ const Home: React.FC = () => {
             name="vendor"
             label="DNS 接入方"
             rules={[{ required: true, message: '请选择DNS接入方' }]}>
-            <Radio.Group
+            <Select
+              onChange={(value) => setIsVonderChange(value !== editItem?.vendor)}
+              options={Object.entries(VendorNameMap).map(([key, value]) => ({
+                value: key,
+                label: value,
+              }))}
+            />
+            {/* <Radio.Group
               onChange={(e) => setIsVonderChange(e.target.value !== editItem?.vendor)}>
               {Object.entries(VendorNameMap).map(([key, value]) => (
                 <Radio.Button key={key} value={key}>
                   {value}
                 </Radio.Button>
               ))}
-            </Radio.Group>
+            </Radio.Group> */}
           </Form.Item>
           <Form.Item
             label="api_id"

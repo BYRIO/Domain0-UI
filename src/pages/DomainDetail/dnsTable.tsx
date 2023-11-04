@@ -1,15 +1,8 @@
-import {
-  DeleteFilled,
-  DeleteOutlined,
-  FileTextFilled,
-  FileTextOutlined,
-  RedoOutlined,
-} from '@ant-design/icons';
+import { FileTextFilled, FileTextOutlined, RedoOutlined } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
 import {
   Button,
   Form,
-  FormInstance,
   Input,
   InputNumber,
   Modal,
@@ -18,10 +11,8 @@ import {
   Space,
   Switch,
   Table,
-  theme,
   Typography,
 } from 'antd';
-import { FormContext } from 'antd/es/form/context';
 import TextArea from 'antd/es/input/TextArea';
 import { ColumnType } from 'antd/es/table';
 import { TextProps } from 'antd/es/typography/Text';
@@ -247,6 +238,7 @@ const vendorCustomizeColums: Record<Api.Domain.DomainVendor, ColumnType<DnsItem>
       },
     },
   ],
+  [Api.Domain.DomainVendorMap.huawei]: [],
 };
 
 const actionColums: ColumnType<DnsItem> = {
@@ -290,7 +282,9 @@ const DnsTable: React.FC<{
   const [removeIds, setRemoveIds] = React.useState<(number | string)[]>([]);
   const [editingIds, setEditingIds] = React.useState<(number | string)[]>([]);
   const [newDnsItems, setNewDnsItems] = React.useState<DnsItem[]>([]);
-  const [updateDnsItems, setUpdateDnsItems] = React.useState<DnsItem[]>([]);
+  const [updateDnsItems, setUpdateDnsItems] = React.useState<
+    (DnsItem & { oldId?: DnsItem['id'] })[]
+  >([]);
 
   const onDnsItemCreated: DnsItem['onCreate'] = (oldItem, newData) => {
     setNewDnsItems((prev) =>
@@ -302,8 +296,16 @@ const DnsTable: React.FC<{
     );
   };
   const onDnsItemUpdated: DnsItem['onUpdate'] = (oldItem, newData) => {
+    const item: (typeof updateDnsItems)[number] = getNormalDnsProps(newData);
+    const oldId =
+      'oldId' in oldItem && oldItem.oldId ? (oldItem as typeof item).oldId : oldItem.id;
+    if (oldId !== newData.id) {
+      item.oldId = oldId;
+    }
     setUpdateDnsItems((prev) =>
-      prev.filter((item) => item.id !== newData.id).concat(getNormalDnsProps(newData)),
+      prev
+        .filter((item) => item.id !== newData.id && item.id !== oldItem.id)
+        .concat(item),
     );
     setEditingIds((prev) => prev.filter((id) => id !== oldItem.id));
   };
@@ -426,7 +428,9 @@ const DnsTable: React.FC<{
     ...(dnsList?.map((i) => getNormalDnsProps(i)) || []),
   ]
     .map((item) => {
-      const updateItem = updateDnsItems.find((updateItem) => updateItem.id === item.id);
+      const updateItem = updateDnsItems.find(
+        (updateItem) => updateItem.id === item.id || updateItem.oldId === item.id,
+      );
       return updateItem || item;
     })
     .map((item) => {

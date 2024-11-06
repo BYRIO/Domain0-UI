@@ -260,6 +260,19 @@ const Home: React.FC = () => {
             />
           </Form.Item>
           <Form.Item
+            label="公开"
+            name="privacy"
+            initialValue={!!form.getFieldValue('privacy')}
+            getValueProps={(value) => ({
+              value: !Boolean(value),
+            })}
+            normalize={(v) => {
+              return !v;
+            }}
+            help="设置非公开后，只有域名创建人能查看此域名信息">
+            <Switch checkedChildren="是" unCheckedChildren="否" />
+          </Form.Item>
+          <Form.Item
             name="vendor"
             label="DNS 接入方"
             rules={[{ required: true, message: '请选择DNS接入方' }]}>

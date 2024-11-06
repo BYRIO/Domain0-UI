@@ -28,6 +28,7 @@ export interface DomainCreateRequest {
   api_secret: string;
   name: string;
   vendor: DomainVendor;
+  privacy: boolean;
 }
 
 export type DomainUpdateRequest = Partial<DomainCreateRequest>;
@@ -42,6 +43,7 @@ export interface DomainItem {
   Name: string;
   Users: null;
   vendor: DomainVendor;
+  privacy: boolean;
 }
 
 export const utils = {
@@ -50,6 +52,7 @@ export const utils = {
       name: item.Name,
       vendor: item.vendor,
       ICP_reg: item.ICP_reg,
+      privacy: item.privacy,
     };
   },
 };
@@ -95,7 +98,9 @@ export function update(id: number, data: DomainUpdateRequest, token = getToken()
       Authorization: `Bearer ${token}`,
     },
     data: Object.fromEntries(
-      Object.entries(data).filter(([k, v]) => k !== 'ICP_reg' && !!v),
+      Object.entries(data).filter(
+        ([k, v]) => k !== 'ICP_reg' && (!!v || k === 'privacy'),
+      ),
     ),
   });
 }

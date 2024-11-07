@@ -262,13 +262,14 @@ const Home: React.FC = () => {
           <Form.Item
             label="公开"
             name="privacy"
+            initialValue={false}
             getValueProps={(value) => ({
               value: !Boolean(value),
             })}
             normalize={(v) => {
               return !v;
             }}
-            help="设置非公开后，只有域名创建人能查看此域名信息">
+            help="非公开：只有域名创建人能查看此域名信息">
             <Switch checkedChildren="是" unCheckedChildren="否" />
           </Form.Item>
           <Form.Item

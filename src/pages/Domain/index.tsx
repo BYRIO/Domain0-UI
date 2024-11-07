@@ -262,7 +262,6 @@ const Home: React.FC = () => {
           <Form.Item
             label="公开"
             name="privacy"
-            initialValue={!!form.getFieldValue('privacy')}
             getValueProps={(value) => ({
               value: !Boolean(value),
             })}

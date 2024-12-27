@@ -3,12 +3,12 @@ import './mobile.less';
 
 import { Spin } from 'antd';
 import React, { Suspense } from 'react';
-import { createHashRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 // import Authority from '@/layouts/Authority';
 import routes from '@/routes/config';
 
-const renderRoutes = createHashRouter(routes);
+const renderRoutes = createBrowserRouter(routes);
 
 const App = () => {
   return (

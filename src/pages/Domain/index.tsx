@@ -264,7 +264,7 @@ const Home: React.FC = () => {
             name="privacy"
             initialValue={false}
             getValueProps={(value) => ({
-              value: !Boolean(value),
+              value: !value,
             })}
             normalize={(v) => {
               return !v;

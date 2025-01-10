@@ -132,3 +132,29 @@ export function callback(code: string, state: string) {
     },
   });
 }
+
+type OIDCMethodResponse = {
+  status: 200 | number;
+  enable: boolean;
+  name: string;
+  logo_url: string;
+};
+
+type FeishuMethodResponse = {
+  status: 200 | number;
+  enable: boolean;
+};
+
+export async function login_methods() {
+  const [oidc, feishu] = await Promise.all([
+    request<OIDCMethodResponse>({
+      url: '/v1/user/oidc/enable',
+      method: 'GET',
+    }),
+    request<FeishuMethodResponse>({
+      url: '/v1/user/feishu/enable',
+      method: 'GET',
+    }),
+  ]);
+  return { oidc, feishu };
+}

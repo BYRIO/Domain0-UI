@@ -50,10 +50,25 @@ export function useToken() {
   return currentToken;
 }
 
+function base64UrlDecode(str: string) {
+  str = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (str.length % 4) {
+    str += '=';
+  }
+  return decodeURIComponent(
+    atob(str)
+      .split('')
+      .map(function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      })
+      .join(''),
+  );
+}
+
 export function getUserInfo(token = getToken()): JwtPayload | null {
   if (!token) return null;
   try {
-    const payload = JSON.parse(window.atob(token.split('.')[1])) as JwtPayload;
+    const payload = JSON.parse(base64UrlDecode(token.split('.')[1])) as JwtPayload;
     if (payload.exp * 1000 < Date.now()) {
       return null;
     }

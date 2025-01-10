@@ -1,4 +1,4 @@
-import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { LoadingOutlined, LockOutlined, UserOutlined } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
 import {
   Avatar,
@@ -23,6 +23,14 @@ const FeishuLogin: React.FC = () => {
   return (
     <a href="/api/v1/user/feishu">
       <Avatar src="https://sf3-scmcdn2-cn.feishucdn.com/lark/open/doc/frontend/favicon-logo.svg" />
+    </a>
+  );
+};
+
+const OIDCLogin: React.FC<{ logo_url: string }> = ({ logo_url }) => {
+  return (
+    <a href="/api/v1/user/oidc">
+      <Avatar src={logo_url} />
     </a>
   );
 };
@@ -52,6 +60,14 @@ const Login: React.FC = () => {
   );
 
   useError(error);
+
+  const {
+    data,
+    error: login_method_error,
+    loading: login_method_loading,
+  } = useRequest(Api.User.login_methods);
+
+  useError(login_method_error);
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center">
@@ -85,7 +101,14 @@ const Login: React.FC = () => {
         {/* 其他登录方式 */}
         <Divider>其他登录方式</Divider>
         <Space className="w-full justify-center">
-          <FeishuLogin />
+          {login_method_loading ? (
+            <LoadingOutlined />
+          ) : (
+            <>
+              {data?.oidc.data.enable && <OIDCLogin logo_url={data.oidc.data.logo_url} />}
+              {data?.feishu.data.enable && <FeishuLogin />}
+            </>
+          )}
         </Space>
       </Card>
     </div>
